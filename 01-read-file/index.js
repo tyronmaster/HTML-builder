@@ -17,14 +17,3 @@ myReadStream.on('data', (chunk) => {
   console.log(`Chunk or total file ${path.join(__dirname, fileName)} received :`);
   console.log(chunk);
 });
-
-
-// TODO Variant with Stream & async
-/*
-const getFile = () => async (req, res) => {
-  const fileStream = await fs.createReadStream(path.join(__dirname, 'text.txt'), 'utf8');
-  res.contentType('text/html');
-  fileStream.pipe(res);
-};
-getFile();
-*/
