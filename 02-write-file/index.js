@@ -6,7 +6,7 @@ const process = require('process');
 const fileName = 'text.txt';
 
 const myWriteStream = fs.createWriteStream(path.join(__dirname, fileName), 'utf-8');
-stdout.write('Hi! Type your text to be saved in file\n');
+stdout.write('Hi! Type your text to be saved in file:\n');
 
 stdin.on('data', data => {
   const keywordPosition = data.toString().indexOf('exit');
@@ -18,4 +18,4 @@ stdin.on('data', data => {
 });
 
 process.on('SIGINT', () => exit());
-process.on('exit', () => stdout.write('File complete.'));
+process.on('exit', () => stdout.write('File saved successfully!'));
