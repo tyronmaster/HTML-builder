@@ -8,10 +8,6 @@ const index = path.join(destinationPath, 'index.html');
 const assetsSource = path.join(__dirname, 'assets');
 const assetsDestination = path.join(destinationPath, 'assets');
 const components = path.join(__dirname, 'components');
-// const header = 'header';
-// const articles = 'articles';
-// const main = 'main';
-// const footer = 'footer';
 
 let makeDir = function (destination) {
   fs.mkdir(destination, { recursive: true }, (err) => {
@@ -46,56 +42,43 @@ makeDir(destinationPath);
 makeDir(assetsDestination);
 copyDir(assetsSource, assetsDestination);
 
+fs.readFile(path.join(__dirname, 'template.html'), 'utf-8', (err, data) => {
+  if (err) return console.error(err.message);
+  let template = data;
+  let tags = template.match(/\{\{[a-zA-Z]+\}\}/g);
+  tags.forEach( tag => {
+    tag = tag.slice(2, -2);
+
+    fs.readFile(path.join(components, `${tag}.html`), 'utf-8', (err, data) => {
+      if (err) return console.error(err.message);
+      template = template.replace(`{{${tag}}}`, data);
+      fs.writeFile(index, template, (err) => {
+        if (err) return console.error(err.message);
+      });
+    });
+  });
+});
+
+
 
 // create style.css
 fs.writeFile(bundle, '', (err) => {
   if (err) return console.error(err.message);
-});
-
-fs.readdir(sourceStylesPath, (err, files) => {
-  // sort files
-  files.push(files.shift());
-
-  files.forEach(file => {
-    if (file.toLowerCase().includes('.css')) {
-      const styleFilePath = path.join(sourceStylesPath, file);
-      fs.readFile(styleFilePath, 'utf-8', (err, data) => {
-        if (err) return console.error(err.message);
-        fs.appendFile(bundle, data, (err) => {
+  //console.log('Styles file cleared');
+  fs.readdir(sourceStylesPath, (err, files) => {
+    // sort files
+    files.push('footer.css');
+    files.splice(files.indexOf('footer.css', 0), 1);
+    files.forEach(file => {
+      if (file.toLowerCase().includes('.css')) {
+        const styleFilePath = path.join(sourceStylesPath, file);
+        fs.readFile(styleFilePath, 'utf-8', (err, data) => {
           if (err) return console.error(err.message);
+          fs.appendFile(bundle, data, (err) => {
+            if (err) return console.error(err.message);
+          });
         });
-      });
-    }
-  });
-});
-
-// create index.html
-fs.writeFile(index, '', (err) => {
-  if (err) return console.error(err.message);
-});
-
-fs.readFile(path.join(__dirname, 'template.html'), 'utf-8', (err, data) => {
-  if (err) console.log(err);
-  let template = data;
-
-  fs.readFile(path.join(components, 'header.html'), 'utf-8', (err, data) => {
-    template = template.replace('{{header}}', data);
-    fs.writeFile(index, template, (err) => {
-      if (err) return console.error(err.message);
-    });
-  });
-
-  fs.readFile(path.join(components, 'articles.html'), 'utf-8', (err, data) => {
-    template = template.replace('{{articles}}', data);
-    fs.writeFile(index, template, (err) => {
-      if (err) return console.error(err.message);
-    });
-  });
-
-  fs.readFile(path.join(components, 'footer.html'), 'utf-8', (err, data) => {
-    template = template.replace('{{footer}}', data);
-    fs.writeFile(index, template, (err) => {
-      if (err) return console.error(err.message);
+      }
     });
   });
 });
